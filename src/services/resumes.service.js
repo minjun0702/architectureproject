@@ -1,3 +1,4 @@
+import { HTTP_STATUS } from "../constants/http-status.constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
 import { HttpError } from "../errors/http.error.js";
 import { ResumesRepository } from "../repositories/resumes.repository.js";
@@ -12,14 +13,33 @@ export class ResumesService {
     return createResume;
   };
 
-  //이력서 전체 조회
-  allResume = async (sort) => {
+  //이력서 전체 조회 api
+  allResume = async (sort, user, status) => {
+    const authId = user.userId;
+    console.log(status);
+
+    let whereCondition = {};
+    if (user.role == "RECRUITER" && status) {
+      whereCondition.support = status;
+    }
     sort = sort?.toLowerCase();
     if (sort !== "desc" && sort !== "asc") {
       sort = "desc";
     }
 
-    const allResume = await this.resumeRepository.allResume(sort);
+    let allResume = await this.resumeRepository.allResume(sort, whereCondition);
+
+    allResume = allResume.map((Resume) => {
+      return {
+        id: Resume.resumeId,
+        authId: Resume.authIds.name,
+        title: Resume.title,
+        aboutMe: Resume.aboutMe,
+        status: Resume.support,
+        createdAt: Resume.createdAt,
+        updatedAt: Resume.updatedAt,
+      };
+    });
 
     return allResume;
   };
@@ -38,7 +58,7 @@ export class ResumesService {
   //이력서 수정
   putResume = async (id, title, aboutMe) => {
     const plusResume = await this.resumeRepository.plusResume(id);
-    if (!plusResume) throw new Error(HttpError.NotFound);
+    if (!plusResume) throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUNE);
 
     await this.resumeRepository.putResume(id, title, aboutMe);
 
@@ -49,9 +69,9 @@ export class ResumesService {
   //이력서 삭제
   deleteResume = async (id) => {
     const plusResume = await this.resumeRepository.plusResume(id);
-    if (!plusResume) throw new Error("존재하지 않는 게시글입니다");
+    if (!plusResume) throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUNE);
 
     await this.resumeRepository.deleteResume(id);
-    return { resumeId: plusResume.resumeId };
+    return plusResume.resumeId;
   };
 }

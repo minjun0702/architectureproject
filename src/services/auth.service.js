@@ -1,25 +1,20 @@
 import { HTTP_STATUS } from "../constants/http-status.constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
+import { HttpError } from "../errors/http.error.js";
 import { prisma } from "../utils/prisma.util.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import {
-  ACCESS_TOKEN_SECRET_KEY,
-  REFRESH_TOKEN_SECRET,
-} from "../constants/env.constant.js";
+import { ACCESS_TOKEN_SECRET_KEY, REFRESH_TOKEN_SECRET } from "../constants/env.constant.js";
 
 export class AuthService {
-  //회원가입
+  //회원가입 api
   signUp = async (email, password, name) => {
     const existedUser = await prisma.users.findUnique({
       where: { email },
     });
 
     if (existedUser) {
-      return {
-        status: HTTP_STATUS.CONFLICT,
-        message: MESSAGES.AUTH.COMMON.EMAIL.DUPLICATED,
-      };
+      throw new HttpError.Conflict(MESSAGES.AUTH.COMMON.EMAIL.DUPLICATED);
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -31,26 +26,22 @@ export class AuthService {
         name,
       },
     });
-
     data.password = undefined; //패스워드 조회되지 않게
+
     return data;
   };
 
-  //로그인
+  //로그인 api
   signIn = async (email, password) => {
     const checkEmail = await prisma.users.findUnique({
       where: { email },
     });
 
-    const isPasswordMatched =
-      checkEmail && bcrypt.compareSync(password, checkEmail.password); //해시된 비밀번호와 일치 확인
+    const isPasswordMatched = checkEmail && bcrypt.compareSync(password, checkEmail.password); //해시된 비밀번호와 일치 확인
 
     if (!isPasswordMatched) {
       // 이메일이 없거나, 패스워드가 일치하지 않을 경우 true
-      return {
-        statsus: HTTP_STATUS.UNAUTHORIZED,
-        message: MESSAGES.AUTH.COMMON.UNAUTHORIZED,
-      };
+      throw new HttpError.Unauthorized(MESSAGES.AUTH.COMMON.UNAUTHORIZED);
     }
 
     //userid 변수 지정

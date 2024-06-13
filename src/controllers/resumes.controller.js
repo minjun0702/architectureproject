@@ -14,6 +14,7 @@ export class ResumesController {
       const createdResume = await this.resumesService.createResume(userId, title, aboutMe);
 
       return res.status(HTTP_STATUS.CREATED).json({
+        status: HTTP_STATUS.CREATED,
         message: MESSAGES.RESUMES.CERATE.SUCCEED,
         createdResume,
       });
@@ -26,9 +27,14 @@ export class ResumesController {
   resumeAllGet = async (req, res, next) => {
     try {
       const { sort } = req.query;
-      const resumeAllget = await this.resumesService.allResume(sort);
+      const user = req.user;
+      const { status } = req.query;
+      const resumeAllget = await this.resumesService.allResume(sort, user, status);
+
+      console.log(status);
 
       return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
         message: MESSAGES.RESUMES.READ_LIST.SUCCEED,
         data: resumeAllget,
       });
@@ -44,6 +50,7 @@ export class ResumesController {
       const resumPlusGet = await this.resumesService.plusResume(id);
 
       return res.status(HTTP_STATUS.CREATED).json({
+        status: HTTP_STATUS.CREATED,
         message: MESSAGES.RESUMES.READ_DETAIL.SUCCEED,
         data: resumPlusGet,
       });
@@ -60,7 +67,8 @@ export class ResumesController {
 
       const resumePut = await this.resumesService.putResume(id, title, aboutMe);
 
-      return res.status(HTTP_STATUS.CREATED).json({
+      return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
         message: MESSAGES.RESUMES.UPDATE.SUCCEED,
         data: resumePut,
       });
@@ -77,8 +85,9 @@ export class ResumesController {
       const resumeDelete = await this.resumesService.deleteResume(id);
 
       return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
         message: MESSAGES.RESUMES.DELETE.SUCCEED,
-        resumeDelete,
+        data: { resumeId: resumeDelete },
       });
     } catch (err) {
       next(err);

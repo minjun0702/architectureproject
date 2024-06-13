@@ -10,10 +10,14 @@ export class ResumesRepository {
   };
 
   //이력서 전체 조회
-  allResume = async (sort) => {
+  allResume = async (sort, whereCondition) => {
     const allResume = await prisma.resume.findMany({
+      where: whereCondition,
       orderBy: {
         createdAt: sort,
+      },
+      include: {
+        authIds: true,
       },
     });
     return allResume;

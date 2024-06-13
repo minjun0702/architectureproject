@@ -9,15 +9,12 @@ export class AuthController {
   signUp = async (req, res, next) => {
     try {
       const { email, password, name } = req.body;
-      const singUpApi = await this.authService.signUp(
-        email,
-        password,
-        name,
-      );
+      const singUpApi = await this.authService.signUp(email, password, name);
 
       return res.status(HTTP_STATUS.CREATED).json({
+        status: HTTP_STATUS.CREATED,
         message: MESSAGES.AUTH.SIGN_UP.SUCCEED,
-        data: singUpApi,
+        singUpApi,
       });
     } catch (err) {
       next(err);
@@ -28,14 +25,12 @@ export class AuthController {
   signIn = async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      const singInApi = await this.authService.signIn(
-        email,
-        password,
-      );
+      const singInApi = await this.authService.signIn(email, password);
 
       return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
         message: MESSAGES.AUTH.SIGN_IN.SUCCEED,
-        data: singInApi,
+        singInApi,
       });
     } catch (err) {
       next(err);

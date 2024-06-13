@@ -1,11 +1,6 @@
 import express from "express";
-import { prisma } from "../utils/prisma.util.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { createResumeValidator } from "../middlewares/validators/create-resume-validator.middleware.js";
 import { updateResumeValidator } from "../middlewares/validators/update-resume-validator.middleware.js";
-import { HTTP_STATUS } from "../constants/http-status.constant.js";
-import { MESSAGES } from "../constants/message.constant.js";
 import { USER_ROLE } from "../constants/user.constant.js";
 import { requireRoles } from "../middlewares/require-roles.middleware.js";
 import { statusUpdateResumeValidator } from "../middlewares/validators/statusupdate-resume-validator.middleware.js";
