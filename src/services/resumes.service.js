@@ -1,3 +1,4 @@
+import { MESSAGES } from "../constants/message.constant.js";
 import { HttpError } from "../errors/http.error.js";
 import { ResumesRepository } from "../repositories/resumes.repository.js";
 
@@ -12,8 +13,14 @@ export class ResumesService {
   };
 
   //이력서 전체 조회
-  allResume = async () => {
-    const allResume = await this.resumeRepository.allResume();
+  allResume = async (sort) => {
+    sort = sort?.toLowerCase();
+    if (sort !== "desc" && sort !== "asc") {
+      sort = "desc";
+    }
+
+    const allResume = await this.resumeRepository.allResume(sort);
+
     return allResume;
   };
 
@@ -21,7 +28,9 @@ export class ResumesService {
   plusResume = async (id) => {
     const plusResume = await this.resumeRepository.plusResume(id);
 
-    if (!plusResume) throw new Error(HttpError.NotFound);
+    if (!plusResume) {
+      throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUNE);
+    }
 
     return plusResume;
   };
@@ -40,9 +49,9 @@ export class ResumesService {
   //이력서 삭제
   deleteResume = async (id) => {
     const plusResume = await this.resumeRepository.plusResume(id);
-    if (!plusResume) throw new Error(HttpError.NotFound);
+    if (!plusResume) throw new Error("존재하지 않는 게시글입니다");
 
     await this.resumeRepository.deleteResume(id);
-    return data;
+    return { resumeId: plusResume.resumeId };
   };
 }

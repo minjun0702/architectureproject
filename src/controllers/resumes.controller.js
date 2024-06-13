@@ -25,7 +25,8 @@ export class ResumesController {
   //이력서 전체 조회
   resumeAllGet = async (req, res, next) => {
     try {
-      const resumeAllget = await this.resumesService.allResume();
+      const { sort } = req.query;
+      const resumeAllget = await this.resumesService.allResume(sort);
 
       return res.status(HTTP_STATUS.OK).json({
         message: MESSAGES.RESUMES.READ_LIST.SUCCEED,
@@ -77,7 +78,7 @@ export class ResumesController {
 
       return res.status(HTTP_STATUS.OK).json({
         message: MESSAGES.RESUMES.DELETE.SUCCEED,
-        data: resumeDelete,
+        resumeDelete,
       });
     } catch (err) {
       next(err);
