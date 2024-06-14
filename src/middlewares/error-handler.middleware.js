@@ -1,3 +1,5 @@
+import { HttpError } from "../errors/http.error.js";
+
 const errorHandler = (err, req, res, next) => {
   console.error(err);
 
@@ -5,6 +7,20 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === "ValidationError") {
     return res.status(400).json({
       status: 400,
+      message: err.message,
+    });
+  }
+
+  if (
+    err instanceof HttpError.BadRequest ||
+    err instanceof HttpError.Unauthorized ||
+    err instanceof HttpError.Forbidden ||
+    err instanceof HttpError.NotFound ||
+    err instanceof HttpError.Conflict ||
+    err instanceof HttpError.InternalServerError
+  ) {
+    return res.status(err.status).json({
+      status: err.status,
       message: err.message,
     });
   }

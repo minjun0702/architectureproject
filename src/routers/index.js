@@ -1,5 +1,4 @@
 import express from "express";
-// import { HTTP_STATUS } from "../constants/http-status.constant";
 import { authrouter } from "./auth.router.js";
 import { userRouter } from "./users.router.js";
 import { resumesRouter } from "./resumes.router.js";
