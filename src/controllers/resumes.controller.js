@@ -28,10 +28,10 @@ export class ResumesController {
     try {
       const { sort } = req.query;
       const user = req.user;
-      const { status } = req.query;
-      const resumeAllget = await this.resumesService.allResume(sort, user, status);
+      const { support } = req.query;
+      let whereCondition = {};
 
-      console.log(status);
+      const resumeAllget = await this.resumesService.allResume(sort, user, support, whereCondition);
 
       return res.status(HTTP_STATUS.OK).json({
         status: HTTP_STATUS.OK,

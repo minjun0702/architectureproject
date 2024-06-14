@@ -14,14 +14,15 @@ export class ResumesService {
   };
 
   //이력서 전체 조회 api
-  allResume = async (sort, user, status) => {
-    const authId = user.userId;
-    console.log(status);
-
-    let whereCondition = {};
-    if (user.role == "RECRUITER" && status) {
-      whereCondition.support = status;
+  allResume = async (sort, user, support, whereCondition) => {
+    if (user.role == "RECRUITER") {
+      if (support) {
+        whereCondition.support = support;
+      }
+    } else {
+      whereCondition.authId = user.userId;
     }
+
     sort = sort?.toLowerCase();
     if (sort !== "desc" && sort !== "asc") {
       sort = "desc";
@@ -31,8 +32,9 @@ export class ResumesService {
 
     allResume = allResume.map((Resume) => {
       return {
-        id: Resume.resumeId,
-        authId: Resume.authIds.name,
+        resumeId: Resume.resumeId,
+        userId: Resume.authIds.userId,
+        name: Resume.authId.name,
         title: Resume.title,
         aboutMe: Resume.aboutMe,
         status: Resume.support,
