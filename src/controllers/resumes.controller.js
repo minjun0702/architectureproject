@@ -26,12 +26,23 @@ export class ResumesController {
   //이력서 전체 조회
   resumeAllGet = async (req, res, next) => {
     try {
-      const { sort } = req.query;
       const user = req.user;
-      const { support } = req.query;
+      let { sort, support } = req.query;
       let whereCondition = {};
 
-      const resumeAllget = await this.resumesService.allResume(sort, user, support, whereCondition);
+      sort = sort?.toLowerCase();
+      if (sort !== "desc" && sort !== "asc") {
+        sort = "desc";
+      }
+      if (user.role == "RECRUITER") {
+        if (support) {
+          whereCondition.support = support;
+        }
+      } else {
+        whereCondition.authId = user.userId;
+      }
+
+      const resumeAllget = await this.resumesService.allResume(sort, whereCondition);
 
       return res.status(HTTP_STATUS.OK).json({
         status: HTTP_STATUS.OK,
@@ -46,8 +57,10 @@ export class ResumesController {
   //이력서 상세 조회
   resumePlusGet = async (req, res, next) => {
     try {
+      const user = req.user;
+      const authId = user.userId;
       const { id } = req.params;
-      const resumPlusGet = await this.resumesService.plusResume(id);
+      const resumPlusGet = await this.resumesService.plusResume(id, authId);
 
       return res.status(HTTP_STATUS.CREATED).json({
         status: HTTP_STATUS.CREATED,
@@ -80,9 +93,10 @@ export class ResumesController {
   //이력서 삭제
   resumeDelete = async (req, res, next) => {
     try {
+      const authId = req.user.userId;
       const { id } = req.params;
 
-      const resumeDelete = await this.resumesService.deleteResume(id);
+      const resumeDelete = await this.resumesService.deleteResume(id, authId);
 
       return res.status(HTTP_STATUS.OK).json({
         status: HTTP_STATUS.OK,

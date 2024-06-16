@@ -4,7 +4,9 @@ import bcrypt from "bcrypt";
 import { HTTP_STATUS } from "../constants/http-status.constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
 import { REFRESH_TOKEN_SECRET } from "../constants/env.constant.js";
+import { UserRepository } from "../repositories/users.repository.js";
 
+const userRepository = new UserRepository();
 export const requireRefreshToken = async (req, res, next) => {
   //인증 정보 파싱
   try {
@@ -62,15 +64,10 @@ export const requireRefreshToken = async (req, res, next) => {
     });
     //넘겨 받은 RefreshToken과 비교
     const isValidRefreshToken =
-      checkRefreshToken &&
-      checkRefreshToken.refreshToken &&
-      bcrypt.compareSync(token, checkRefreshToken.refreshToken);
+      checkRefreshToken && checkRefreshToken.refreshToken && bcrypt.compareSync(token, checkRefreshToken.refreshToken);
 
     //Payload에 담긴 사용자 ID와 일치하는 사용자가 없는 경우
-    const user = await prisma.users.findUnique({
-      where: { userId: id },
-      omit: { password: true },
-    });
+    const user = await userRepository.findById(id);
 
     if (!isValidRefreshToken) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({

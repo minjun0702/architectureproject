@@ -1,4 +1,3 @@
-import { HTTP_STATUS } from "../constants/http-status.constant.js";
 import { MESSAGES } from "../constants/message.constant.js";
 import { HttpError } from "../errors/http.error.js";
 import { ResumesRepository } from "../repositories/resumes.repository.js";
@@ -14,41 +13,15 @@ export class ResumesService {
   };
 
   //이력서 전체 조회 api
-  allResume = async (sort, user, support, whereCondition) => {
-    if (user.role == "RECRUITER") {
-      if (support) {
-        whereCondition.support = support;
-      }
-    } else {
-      whereCondition.authId = user.userId;
-    }
-
-    sort = sort?.toLowerCase();
-    if (sort !== "desc" && sort !== "asc") {
-      sort = "desc";
-    }
-
+  allResume = async (sort, whereCondition) => {
     let allResume = await this.resumeRepository.allResume(sort, whereCondition);
-
-    allResume = allResume.map((Resume) => {
-      return {
-        resumeId: Resume.resumeId,
-        userId: Resume.authIds.userId,
-        name: Resume.authId.name,
-        title: Resume.title,
-        aboutMe: Resume.aboutMe,
-        status: Resume.support,
-        createdAt: Resume.createdAt,
-        updatedAt: Resume.updatedAt,
-      };
-    });
 
     return allResume;
   };
 
   //이력서 상세 조회
-  plusResume = async (id) => {
-    const plusResume = await this.resumeRepository.plusResume(id);
+  plusResume = async (id, authId) => {
+    const plusResume = await this.resumeRepository.plusResume(id, authId);
 
     if (!plusResume) {
       throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUNE);
@@ -69,8 +42,8 @@ export class ResumesService {
   };
 
   //이력서 삭제
-  deleteResume = async (id) => {
-    const plusResume = await this.resumeRepository.plusResume(id);
+  deleteResume = async (id, authId) => {
+    const plusResume = await this.resumeRepository.plusResume(id, authId);
     if (!plusResume) throw new HttpError.NotFound(MESSAGES.RESUMES.COMMON.NOT_FOUNE);
 
     await this.resumeRepository.deleteResume(id);
