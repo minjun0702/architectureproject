@@ -18,7 +18,7 @@ export class UserRepository {
     return user;
   };
 
-  cerateUser = async ({ email, password, name }) => {
+  cerateUser = async (email, password, name) => {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     const data = await prisma.users.create({
@@ -27,7 +27,7 @@ export class UserRepository {
         password: hashedPassword,
         name,
       },
-      omit: { password: true }, // 패스워드는 가져오지 않는다는뜻
+      // omit: { password: true }, // 패스워드는 가져오지 않는다는뜻
     });
 
     return data;
