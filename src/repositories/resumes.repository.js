@@ -11,7 +11,7 @@ export class ResumesRepository {
 
   //이력서 전체 조회
   allResume = async (sort, whereCondition) => {
-    const allResume = await prisma.resume.findMany({
+    let allResume = await prisma.resume.findMany({
       where: whereCondition,
       orderBy: {
         createdAt: sort,
@@ -20,15 +20,48 @@ export class ResumesRepository {
         authIds: true,
       },
     });
+
+    allResume = allResume.map((Resume) => {
+      return {
+        resumeId: Resume.resumeId,
+        userId: Resume.authIds.userId,
+        name: Resume.authIds.name,
+        title: Resume.title,
+        aboutMe: Resume.aboutMe,
+        status: Resume.support,
+        createdAt: Resume.createdAt,
+        updatedAt: Resume.updatedAt,
+      };
+    });
+
     return allResume;
   };
 
   //이력서 상세 조회
-  plusResume = async (id) => {
-    const plusResume = await prisma.resume.findUnique({
-      where: { resumeId: +id },
+  plusResume = async (id, authId) => {
+    let plusResume = await prisma.resume.findUnique({
+      where: { resumeId: +id, authId },
+      include: {
+        authIds: true,
+      },
     });
-    return plusResume;
+
+    if (!plusResume) {
+      return plusResume;
+    }
+
+    let data = {
+      resumeId: plusResume.resumeId,
+      userId: plusResume.authIds.userId,
+      name: plusResume.authIds.name,
+      title: plusResume.title,
+      aboutMe: plusResume.aboutMe,
+      status: plusResume.support,
+      createdAt: plusResume.createdAt,
+      updatedAt: plusResume.updatedAt,
+    };
+
+    return data;
   };
 
   //이력서 수정
